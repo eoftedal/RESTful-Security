@@ -306,6 +306,20 @@ CanonicalizedAmzHeaders = [lower cased, sorted, trimmed, joined with newline]</p
     </article>
   </slide>
 
+  <slide>
+    <hgroup>
+      <h2>OAuth</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>The user allows the resource server to create a token</li>
+        <li>That token is delivered to the client - which can now make requests on behalf of the user</li>
+        <li>Auth in OAuth means Authorization - not authentication</li>
+      </ul>
+    </article>
+  </slide>
+
+
 
   <slide>
     <hgroup>
@@ -341,7 +355,7 @@ CanonicalizedAmzHeaders = [lower cased, sorted, trimmed, joined with newline]</p
 <!--  &lt;!ENTITY xxe SYSTEM "secret.txt"&gt; -->
       <pre class="prettyprint input" data-lang="input" contenteditable>&lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;!DOCTYPE comment [
-  &lt;!ENTITY xxe SYSTEM "/etc/passwd"&gt;
+  &lt;!ENTITY xxe SYSTEM "secret.txt"&gt;
 ]&gt;
 &lt;comment&gt;
 &lt;title&gt;XXE&lt;/title&gt;
@@ -886,7 +900,8 @@ public class BaseResource {
     <aside class="gdbar right"><img src="images/bekk-logo.png"></aside>
     <article class="flexbox vleft auto-fadein">
       <h2>&lt;Thank You!&gt;</h2>
-
+      <br>
+      Slides and code at github.com/eoftedal
     </article>
     <p class="auto-fadein" data-config-contact>
       <!-- populated from slide_config.json -->
