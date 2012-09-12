@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	
+<web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+	
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+    <display-name>RESTful insecurity</display-name>
+    
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath:applicationContext.xml</param-value>
+    </context-param>
+    
+    
+   	<filter>
+		<filter-name>auth</filter-name>
+        <filter-class>restful.insecurity.AuthFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>auth</filter-name>
+		<url-pattern>/app/*</url-pattern>
+		<url-pattern>/rest/*</url-pattern>
+	</filter-mapping>
+    
+    
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+    <listener>
+        <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+    </listener>
+    <servlet>
+        <servlet-name>Jersey Spring Web Application</servlet-name>
+        <servlet-class>com.sun.jersey.spi.spring.container.servlet.SpringServlet</servlet-class>
+		<init-param>
+			<param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<init-param>
+			<!-- NEVER EVER GO INTO PRODUCTION WITH THIS SET TO TRUE!  -->
+			<param-name>com.sun.jersey.config.feature.DisableXmlSecurity</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<init-param>
+			<param-name>com.sun.jersey.config.feature.Formatted</param-name>
+			<param-value>true</param-value>
+		</init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Jersey Spring Web Application</servlet-name>
+        <url-pattern>/rest/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+</web-app>
