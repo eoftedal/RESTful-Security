@@ -1,1 +1,923 @@
-/home/erlend/Dropbox/Presentasjoner/javazone-restful_security/presentasjon.html
+<!--
+Base on the Google IO 2012 HTML5 Slide Template
+
+Authors: Eric Bidelman <ebidel@gmail.com>
+         Luke Mahé <lukem@google.com>
+
+URL: https://code.google.com/p/io-2012-slides
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>RESTful Security - Javazone 2012</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">-->
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+  <!--This one seems to work all the time, but really small on ipad-->
+  <!--<meta name="viewport" content="initial-scale=0.4">-->
+  <link rel="stylesheet" media="all" href="theme/css/default.css">
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="theme/css/phone.css">
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="js/slides" src="js/require-1.0.8.min.js"></script>
+</head>
+<body style="opacity: 0">
+
+<div id="timer">
+</div>
+
+<slides class="layout-widescreen">
+  
+  <slide class="fill logoslide nobackground black">
+    <article class="flexbox vcenter">
+      <span><img src="images/jz12-logo.png"></span>
+    </article>
+  </slide>
+
+  <slide class="title-slide segue nobackground">
+    <aside class="gdbar"><img src="images/bekk-logo.png"></aside>
+    <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+    <hgroup class="auto-fadein">
+      <h1 data-config-title><!-- populated from slide_config.json --></h1>
+      <h2 data-config-subtitle><!-- populated from slide_config.json --></h2>
+      <p data-config-presenter><!-- populated from slide_config.json --></p>
+    </hgroup>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>REST purist's manifesto</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Rely on HTTP - verbs etc.</li>
+        <li>No server side state in session</li>
+        <li>Use links(URIs) to map resources together</li>
+        <li>No server side state in session</li>
+        <li>Use your own hyper media format</li>
+        <li>NO F###ING SERVER SIDE STATE IN SESSION!! OMFG! <img src="images/angry.jpg" style="float: right;"></li>
+      </ul>
+      <footer class="source">Example: <span class="urlify">http://www.prescod.net/rest/mistakes</span></footer>
+    </article>
+  </slide>
+
+  <slide class="segue dark quote nobackground">
+    <article class="flexbox vleft auto-fadein">
+      <q class="small">The client–server communication is further constrained by no client context being stored on the server between requests. Each request from any client contains all of the information necessary to service the request, and any session state is held in the client.</q>
+      <div class="author">
+        Wikipedia
+      </div>
+    </article>
+  </slide>
+
+
+
+  <slide>
+    <hgroup>    
+      <h2>Login/session-related problems</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Session timeout</li>
+        <li>Log out</li>
+        <li>3rd party authentication - (BankID, Buypass etc.)</li>
+        <li>CSRF-tokens</li>
+      </ul>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+        <li> HTTPS - Make sure you harden your SSL/TLS config</li>
+        <li>Tools:<ul>
+          <li><a href="https://www.ssllabs.com/ssldb/" target="_blank">www.ssllabs.com/ssldb/</a></li>
+          <li><a href="http://sourceforge.net/projects/sslscan/" 
+          target="_blank">sourceforge.net/projects/sslscan/</a></li>
+        </ul></li>
+        <li>Custom encryption can become difficult even when used vetted algorithms (lookup padding oracles)</li>
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Confidentiality</h2>
+    </hgroup>
+    <article>
+      <img src="images/wiretap.jpg">
+      <footer class="source">Image CC by <a href="http://www.flickr.com/photos/williac/">williac</a></footer>
+    </article>
+  </slide>
+  
+  <slide>
+    <hgroup><h2>SSL test</h2></hgroup>
+    <article>
+      <iframe src="https://www.ssllabs.com/ssltest/analyze.html?d=elba.gbkr.si"></iframe>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+        Basic auth is ok on https between servers - you can still store the pws securely on the server.
+        For client auth, basic auth isn't as good. No way to log out. Too much exposure of password.
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Authentication</h2>
+    </hgroup>
+    <article>
+      Standard HTTP mechanisms:<br><br>
+      <ul class="build">
+        <li>HTTP Basic Authentication</li>
+        <li>HTTP Digest Authentication</li>
+        <li>HTTPS Client certificates</li>
+        <li>NTLM/SPNEGO</li>
+        <li>Session based - standard form based login</li>
+        <li>Token-based - OpenID, SAML, OAuth2 etc.</li>
+      </ul>
+    </article>
+  </slide>
+
+  <slide class="fill nobackground" style="background: #000 url(images/authorization.jpg); background-size: 100% auto; background-repeat: no-repeat;">
+    <aside class="note">
+      <section>
+        Horisontal access control - roles / types of access
+      </section>
+    </aside>
+    <hgroup>
+      <h2 style="background: rgba(0,0,0,0.5); color: #fff; float:left; padding: 10px">Authorization - Vertical Access control</h2>
+    </hgroup>    
+    <article>
+      <footer class="source">Image by Torstein Nicolaysen/Tine Kleivane</footer>
+    </article>
+  </slide>
+
+  <slide class="fill nobackground" style="background: #000 url(images/horisontal.jpg); background-size: 100% auto; background-repeat: no-repeat;">
+    <aside class="note">
+      <section>
+        Horizontal access control - access to a given specific resource (a document, only being allowed to edit your own profile etc.)
+      </section>
+    </aside>
+    <hgroup>
+      <h2 style="background: rgba(0,0,0,0.5); color: #fff; float:left; padding: 10px">Authorization - Horizontal access control</h2>
+    </hgroup>    
+    <article>
+      <footer class="source" style="background: rgba(0,0,0,0.5); padding: 5px;">Image CC by <a href="http://www.flickr.com/photos/noodle/2684899976/">noodle</a></footer>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+        No unauthorized changes to request/response in transit.
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Authorization</h2>
+    </hgroup>
+    <article>
+      <ul>
+        <li>Vertical access control - role based</li>
+        <li>Horizontal access control - access to a given representation/document</li>
+      </ul>
+    </article>
+  </slide>
+
+
+
+  <slide>
+    <aside class="note">
+      <section>
+        No unauthorized changes to request/response in transit.
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Integrity</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>HTTPS</li>
+        <li>Signing requests using secret keys or PKI (certificates++)</li>
+      </ul>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+        Canonicalization is bringing the data into a normalized form. A standardized form both the client and server agree on. Allows both server and client to verify signatures (rebuild the signed data, and verify)
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Signing requests</h2>
+    </hgroup>
+    <article>
+      <ol class="build">
+        <li>Canonicalize what is to be signed</li>
+        <li>Sign it</li>
+        <li>Encode the signature in Base64 and embed in request as a header</li>
+      </ol>
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>Verifying the signature</h2>
+    </hgroup>
+    <article>
+      <ol class="build">
+        <li>Canonicalize what was expected to be signed</li>
+        <li>Verify signature</li>
+        <li><b>Use the canonicalized data</b></li>
+      </ol>
+    </article>
+  </slide>
+
+  <slide class="fill nobackground dark">
+    <aside class="note">
+      <section>
+        <li>WS-Security is based on XML-signatures and XML-encryption</li>
+        <li>Embeds the signature in the XML itself</li>
+        <li>Vulerabilities released in 2011 and more to come in 2012</li>
+      </section>
+    </aside>
+    <hgroup>
+      <h2 style="color: #E6E6E6">WS-security</h2>
+    </hgroup>
+    <article class="flexbox vcenter build">
+      <img src="images/deathstar2.jpg">
+    </article>
+  </slide>  
+
+  <slide class="nobackground dark">
+    <aside class="note">
+      <section>
+        Did not use what was signed. Has been a flaw in many SAML frameworks.
+      </section>
+    </aside>
+    <hgroup>
+      <h2 style="color: #E6E6E6">XML signature wrapping attack</h2>
+    </hgroup>
+    <article class="flexbox vcenter">
+      <img src="images/ws_signature_wrapping2.png" alt="Description" title="Description">
+      <footer class="source">source: <span class="urlify">http://ws-attacks.org</span></footer>
+    </article>
+  </slide>
+
+  <slide class="nobackground dark">
+    <aside class="note">
+      <section>
+        OpenSAML  was vulnerable.
+      </section>
+    </aside>
+    <hgroup>
+      <h2 style="color: #E6E6E6">SAML signature wrapping attack</h2>
+    </hgroup>
+    <article class="flexbox vcenter">
+      <img src="images/signature-wrapping.png" style="height: 100%">
+      <footer class="source" style="bottom: 20px">source:<span class="urlify">https://www.usenix.org/sites/default/files/conference/protected-files/somorovsky_usenixsecurity12_slides_0.pdf</span></footer>
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>REST Signature Example - Amazon </h2>
+    </hgroup>
+    <article>
+    <div class="build">
+      <pre class="prettyprint lang-http">Authorization: AWS AWSAccessKeyId:Signature</pre>
+      <pre style="font-size: 80%; line-height: 1.1em" class="prettyprint lang-">Authorization = "AWS" + " " + AWSAccessKeyId + ":" + Signature;
+
+<b>Signature = Base64( HMAC-SHA1( UTF-8-Encoding-Of( YourSecretAccessKeyID, StringToSign ) ) );</b>
+
+StringToSign = HTTP-Verb + "\n" +
+  Content-MD5 + "\n" +
+  Content-Type + "\n" +
+  Date + "\n" +
+  CanonicalizedAmzHeaders +
+  CanonicalizedResource;
+
+CanonicalizedResource = [ "/" + Bucket ] +
+  &lt;HTTP-Request-URI, from the protocol name up to the query string&gt; +
+  [ sub-resource, if present. For example "?acl", "?location", "?logging", or "?torrent"];
+
+CanonicalizedAmzHeaders = [lower cased, sorted, trimmed, joined with newline]</pre>
+    </div>
+    </article>
+  </slide>
+
+
+  <slide>
+    <hgroup>
+      <h2>Avoiding replay attacks</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>HTTPS</li>
+        <li>Signed timestamp</li>
+        <li>Signed Unique ID - (GUID, UUID)</li>
+      </ul>
+      <div class="server">
+        <blockquote class="arrow_box">
+          400 &nbsp;Yeah, I've heard that before...
+        </blockquote>
+        <img src="images/server.svg" />
+      </div>
+    </article>
+  </slide>
+
+
+  <slide>
+    <aside class="note">
+      <section>
+        If you are building an XML based REST architecture from scratch there are som attacks you need to be aware of.
+      </section>
+    </aside>
+    <hgroup>
+      <h2>XXE - XML eXternal Entity Attacks</h2>
+    </hgroup>
+    <article>
+        <form class="rest" method="POST" action="/rest/comments/" data-accept="text" enctype="application/xml">
+<!--  &lt;!ENTITY xxe SYSTEM "secret.txt"&gt; -->
+      <pre class="prettyprint input" data-lang="input" contenteditable>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;!DOCTYPE comment [
+  &lt;!ENTITY xxe SYSTEM "/etc/passwd"&gt;
+]&gt;
+&lt;comment&gt;
+&lt;title&gt;XXE&lt;/title&gt;
+&lt;body&gt;&xxe;&lt;/body&gt;
+&lt;/comment&gt;</pre>
+          <pre class="output" data-lang="output"></pre>
+        </form>
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup><h2>XXE in real-life</h2></hgroup>
+    <article>
+      <a href="http://java.net/jira/browse/JERSEY-323">JERSEY-323</a>: All Jersey web services that accept XML are vulnerable to XXE attacks
+      
+    </article>
+  </slide>
+
+
+  <slide>
+    <hgroup>
+      <h2>XEE - XML Entity Expansions</h2>
+    </hgroup>
+    <article>
+      <pre class="prettyprint" data-lang="xml" style="font-size: 20px; line-height: 26px;">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;!DOCTYPE foo [ 
+  &lt;!ENTITY a "1234567890" &gt; 
+  &lt;!ENTITY b "&a;&a;&a;&a;&a;&a;&a;&a;" &gt; 
+  &lt;!ENTITY c "&b;&b;&b;&b;&b;&b;&b;&b;" &gt; 
+  &lt;!ENTITY d "&c;&c;&c;&c;&c;&c;&c;&c;" &gt; 
+  &lt;!ENTITY e "&d;&d;&d;&d;&d;&d;&d;&d;" &gt; 
+  &lt;!ENTITY f "&e;&e;&e;&e;&e;&e;&e;&e;" &gt; 
+  &lt;!ENTITY g "&f;&f;&f;&f;&f;&f;&f;&f;" &gt; 
+  &lt;!ENTITY h "&g;&g;&g;&g;&g;&g;&g;&g;" &gt; 
+  &lt;!ENTITY i "&h;&h;&h;&h;&h;&h;&h;&h;" &gt; 
+  &lt;!ENTITY j "&i;&i;&i;&i;&i;&i;&i;&i;" &gt; 
+  &lt;!ENTITY k "&j;&j;&j;&j;&j;&j;&j;&j;" &gt; 
+  &lt;!ENTITY l "&k;&k;&k;&k;&k;&k;&k;&k;" &gt; 
+  &lt;!ENTITY m "&l;&l;&l;&l;&l;&l;&l;&l;" &gt; 
+]&gt; 
+&lt;foo&gt;&m;&lt;/foo&gt;</pre>
+      <div class="build">
+        <span>Length: 687,194,767,360 bytes ~ 687 GB</span>
+      </div>
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>XXE - XML eXternal Entity Attacks</h2>
+    </hgroup>
+    <article>
+        <form class="rest" method="POST" action="/rest/comments/" data-accept="text" enctype="application/xml">
+      <pre class="prettyprint input" data-lang="input">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;!DOCTYPE foo [
+  &lt;!ENTITY a "1234567890" &gt; 
+  &lt;!ENTITY b "&a;&a;&a;&a;&a;&a;&a;&a;" &gt; 
+  &lt;!ENTITY c "&b;&b;&b;&b;&b;&b;&b;&b;" &gt; 
+]&gt;
+&lt;comment&gt;
+&lt;title&gt;XXE&lt;/title&gt;
+&lt;body&gt;&c;&lt;/body&gt;
+&lt;/comment&gt;</pre>
+          <pre class="output" data-lang="output"></pre>
+        </form>
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>Memory exhaustion - a pile of foo</h2>
+    </hgroup>
+    <article>
+      <pre class="prettyprint" data-lang="xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;foo&gt;
+ &lt;foo&gt;
+  &lt;foo&gt;
+   &lt;foo&gt;
+    &lt;foo&gt;
+     &lt;foo&gt;
+      ...1 million foos later...
+       &lt;foo&gt;
+        Hola el mundo
+       &lt;/foo&gt;
+      ...there and back again...
+  &lt;/foo&gt;
+ &lt;/foo&gt;
+&lt;/foo&gt;
+
+      </pre>
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>Secure XML parsing</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Disable doctype declarations</li>
+        <li>Don't use DOM-based parsers (prefer SAX)</li>
+        <li>Valdate against schemas</li>
+        <li>Check out <a href="http://ws-attacks.org">ws-attacks.org</a></li>
+      </ul>
+    </article>  
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>Security in a REST based front end</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Transfer data as JSON (no HTML and no HTML entities)</li>
+        <li>Set a character set (UTF-8) in HTML and in JSON responses</li>
+        <li>Use a good templating framework - escape by default</li>
+        <li>Default to secure functions <pre class="inbetween">$(...).text(val)</pre> instead of <pre class="inbetween">$(...).html(val)</pre></li>
+      </ul>
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>Content types</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Check the content type header - don't assume!</li>
+        <li>Respond with a content type AND a character set</li>
+        <li>Response header:<pre>X-Content-Type-Options: nosniff</pre></li>
+      </ul>
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>CSRF-protection</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Generate a <em>cryptographically secure</em> token and put it in the session</li>
+        <li>Transfer it to the client as a part of user data</li>
+        <li>Include in responses as an HTTP header</li>
+        <pre class="prettyprint" data-lang="javascript">
+$("body").bind("ajaxSend", function(elm, xhr, s){
+   if (s.type == "POST") {
+      xhr.setRequestHeader('X-CSRF-Token', csrf_token);
+   }
+});</pre>
+      </ul>
+    </article>
+  </slide>
+
+
+  <slide>
+    <hgroup>
+      <h2>Caching</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>HTTP allows a client or proxy to cache resources</li>
+        <li>by mistake
+        <img src="images/kenneth.jpg" style="width: 400px; float: right;"></li>
+      </ul>
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>Clickjacking</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Steal data using hidden <a href="https://www.owasp.org/images/c/c5/Html5-something_wicked_this_way_comes_owasp.pdf">drag and drop</a> </li>
+      </ul>
+      <ul class="build">
+        <li>Response header:<pre>X-Frame-Options: DENY</pre></li>
+      </ul>
+    </article>
+  </slide>
+
+
+
+  <slide>
+    <aside class="note">
+      <section>
+        Exposing internal objects - adding new fields, forgetting that they become visible to anyone using the service.
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Promiscuous services</h2>
+    </hgroup>
+    <article>
+      <div class="build">
+        <ul class="build">
+          <li>Is your service showing too much?</li>
+          <li>Does it allow others to touch its privates?</li>
+        </ul>
+        <img src="images/massassignment.png" style="float: right;">
+      </div>
+    </article>
+  </slide>
+
+
+  <slide>
+    <hgroup>
+      <h2>Promiscuous services</h2>
+    </hgroup>
+    <article>
+      <form class="editForm">
+        <div><label>Id:</label>0</div>
+        <div><label>Username:</label>erlend</div>
+        <div><label>Email:</label>erlend@oftedal.no</div>
+        <div><label>First name:</label><input type="text" value="Erlend"></div>
+        <div><label>Last name:</label><input type="text" value="Oftedal"></div>
+        <div><label>&nbsp;</label><button onclick="return false;">Submit</button></div>
+      </form>
+      <form class="rest" method="GET" action="/rest/users/0" data-accept="json" data-copy="#user_out">
+        <pre class="output" data-lang="output"></pre>
+      </form>
+
+
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>Promiscuous services</h2>
+    </hgroup>
+    <article>
+      <form class="rest" method="POST" action="/rest/users/0" data-accept="json" enctype="application/json">
+        <pre class="input" id="user_out" contenteditable data-lang="input"></pre>
+        <pre class="output" data-lang="output"></pre>
+      </form>
+    </article>
+  </slide>
+
+
+  <slide>
+    <hgroup>
+      <h2>Gluttonous services - Overconsumption</h2>
+    </hgroup>
+    <article> 
+      <ul class="build">
+        <li>You use a document database</li>
+        <li>You don't strip unwanted fields</li>
+        <li>Attacker sends 100,000 fields</li>
+        <li>Presto!<br><img src="images/tom_and_jerry.jpg" style="height: 300px; margin-top: 5px;"></li>
+      </ul> 
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+        <li>Grant access to specific resource</li>
+        <li>Share with others</li>
+        <li>Allow browser to load a certain URI directly</li>
+        <li>Signature as a URL parameter</li>
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Signed URIs</h2>
+    </hgroup>
+    <article>
+      <pre class="prettyprint lang-uri">
+        https://example.com/some/resource?id=2&signature=ab9829dfh02920920220baa422b6cc7
+      </pre>
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>Real-life examples?</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Thai Duong and Juliano Rizzo disovered  
+          <a href="http://netifera.com/research/flickr_api_signature_forgery.pdf"> a flaw in Flickr's API Signature</a>
+        </li>
+        <li>Flickr's API:
+          <ol>
+            <li>Sort your URL parameters:<br>
+              <pre class="inbetween prettyprint lang-uri">bar=2&baz=3&foo=1</pre></li>
+            <li>Concatenate the shared secret and parameter name-value pairs:<br>
+              <pre class="inbetween">SECRETbar2baz3foo1</pre></li>
+            <li>Calculate the md5() and add as parameter
+            <pre class="inbetween prettyprint lang-uri">bar=2&baz=3&foo=1&signature=afb12318a0b9823bcd</pre></li>
+          </ol>
+        </li>
+      </ul>
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>MD5 "signature"</h2>
+    </hgroup>
+    <article class="build md5">
+      <div>How MD-based algoritms work
+      <div class="css-steps md5-1" data-steps="6">
+        <div class="s-block"></div>
+        <div class="block-0"><div class="secret"></div></div>
+        <div class="block-1"></div>
+        <div class="block-2"><div class="data"></div><div class="padding"></div></div>
+
+        <legend>
+          <div class="s-block"><div>S-block</div></div>
+          <div class="secret"><div>Secret</div></div>
+          <div class="data"><div>Data</div></div>
+          <div class="padding"><div>Padding</div></div>
+        </legend>
+      </div></div>
+      <div>Length extension attack
+      <div class="css-steps md5-2" data-steps="5">
+        <div class="s-block"></div>
+        <div class="block-0"><div class="secret"></div></div>
+        <div class="block-1"></div>
+        <div class="block-2"><div class="data"></div><div class="padding"></div></div>
+        <div class="block-3"><div class="data"></div><div class="padding"></div></div>
+
+        <legend>
+          <div class="s-block"><div>S-block</div></div>
+          <div class="secret"><div>Secret</div></div>
+          <div class="data"><div>Data</div></div>
+          <div class="padding"><div>Padding</div></div>
+          <div class="attack"><div>Attack</div></div>
+        </legend>
+      </div></div>
+    </article>
+  </slide>
+
+  <!-- slide>
+    <hgroup>
+      <h2>Block based hash algorithms (MD)</h2>
+    </hgroup>
+    <article>
+      <ol class="build">
+        <li>Starts with a constant value S</li>
+        <li>First block of data D<sup>0</sup>:
+          <pre class="inbetween">H<sup>0</sup> = MD5_round(S, D<sup>0</sup>)</li>
+        <li>Consecutive blocks D<sup>n</sup>:
+          <pre class="inbetween">H<sup>n</sup> = MD5_round(H<sup>n-1</sup>, D<sup>n</sup>)</li>
+        <li>The last block is padded with a 1, some 0s and the length of the original string</li>
+      </ol>
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>Attacking the signature</h2>
+    </hgroup>
+    <article>
+      <pre>
+function MD5(data) {
+   var padded = pad_to_multiple_of_blocksize(data);
+   return h(padded);
+}
+function h(padded) {
+   var blocks = split_into_blocks(padded);
+   var result = S;
+   for (var block in blocks) {
+      result = MD5_round(result, block);
+   }
+   return result;
+}
+
+</pre>
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>Attacking the signature</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Consider the following layout:
+          <pre class="inbetween">MD5(secret + data) = h(secret + data + padding)</pre>
+        </li>
+        <li>
+          What if we wanted to hash data that was by coincedence (or not) equal to this:
+          <pre class="inbetween">secret + data + padding + new_data</pre>
+        </li>
+        <li>
+          The layout would become
+          <pre class="inbetween">MD5(...) = h(secret + data + padding + new_data + new_padding)</pre>
+        </li>
+        <li>
+          Which is equal to: <pre class="inbetween">MD5_round(MD5(secret + data), new_data + new_padding)</pre>
+        </li>
+      </ul>
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>Attacking the signature</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>So if we have the output of:
+          <pre class="inbetween prettyprint">H<sup>x</sup> = MD5(secret + data)</pre>
+        </li>
+        <li>
+          We can use H<sup>x</sup> as the starting value S in order to calculate:
+          <pre class="inbetween prettyprint">MD5(secret + data + padding + new_data)</pre>
+        </li>
+        <li>by running for the new data (D<sup>0</sup>-D<sup>n</sup>):
+          <pre class="inbetween prettyprint">H<sup>D<sup>0</sup></sup> = MD5_round(H<sup>x</sup>, D<sup>0</sup>)</pre>
+          <pre class="inbetween prettyprint">H<sup>D<sup>x</sup></sup> = MD5_round(H<sup>D<sup>x-1</sup></sup>, D<sup>x</sup>) // for x > 0</pre>
+        </li>
+
+        <li>
+          We have to make sure the padding includes the correct length
+        </li>
+        <li>
+          This is called a length extension attack
+        </li>
+      </ul>
+    </article>
+  </slide -->
+
+  <slide>
+    <hgroup>
+      <h2>Attack on the Flickr API</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>No difference between<br>
+          <pre class="inbetween prettyprint lang-uri">?bar=2&baz=3&foo=1</pre>
+          and
+          <pre class="inbetween prettyprint lang-uri">?b=ar2baz3foo1</pre></li>
+        <li>This allowed an attacker to build a new signed URI with arguments:
+          <pre class="inbetween prettyprint lang-uri">?b=ar2baz3foo10000020&bar=6&baz=5&foo=4</pre>
+          and then length extend the signature to include the new parameters
+        </li>
+      </ul>
+    </article>
+  </slide>
+
+<slide>
+    <hgroup>
+      <h2>Attacking URL signatures by length extension</h2>
+    </hgroup>
+    <article class="build">
+        <form class="rest" method="GET" action="/rest/comments/0" data-accept="json" enctype="application/json">
+          <pre class="output" data-lang="output"></pre>
+        </form>
+
+        <form class="rest" method="GET" action="/rest/comments/show?id=0&signature=a26831c490f52416c2bfeb502ed9753f" data-auth="false" data-accept="json" enctype="application/json">
+          <pre class="output" data-lang="output"></pre>
+        </form>
+    </article>
+  </slide>
+<slide>
+    <hgroup>
+      <h2>Attacking URL signatures by length extension</h2>
+    </hgroup>
+    <article>
+        <ul class="build">
+          <li>We change from id=0 to id=1</li>
+          <li><form class="rest" method="GET" action="/rest/comments/show?id=1&signature=a26831c490f52416c2bfeb502ed9753f" data-auth="false" data-accept="json" enctype="application/json">
+          <pre class="output" data-lang="output"></pre>
+        </form></li>
+          <li>So the signature is no longer a match...</li>
+    </article>
+  </slide>
+
+<slide>
+    <hgroup>
+      <h2>Attacking URL signatures by length extension</h2>
+    </hgroup>
+    <article class="build">
+      <div class="extension">
+        <div><label>Hash: </label> a26831c490f52416c2bfeb502ed9753f</div>
+        <div><label>Original data length:</label> secret.length + "id0".length = 6 + 3 = 9</div>
+        <div><label>New data:</label> "id1"</div>
+        <div><label>&nbsp;</label><button onclick="rest.load('/rest/md5/?md5=a26831c490f52416c2bfeb502ed9753f&d=id1&l=9', function(data) { $('#newHash').text(data.newHash); $('#padding').text(data.pad); })">Calculate extension</button></div>
+        <div><label>New hash:</label> <span id="newHash"></span></div>
+        <div><label>Padding:</label> <span id="padding">&nbsp;</span></div>
+      </div>
+
+
+
+        <form class="rest" method="GET" action="/rest/comments/show?id=1&signature=3ccba89ba020513df98092c32b993983&i=d0%2580%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500%2500H%2500%2500%2500%2500%2500%2500%2500" data-auth="false" data-accept="json" enctype="application/json">
+          <pre class="output" data-lang="output"></pre>
+        </form>
+    </article>
+  </slide>
+
+
+
+
+
+  <slide>
+    <hgroup>
+      <h2>Implementing security</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Reusable filters
+          <ul>
+            <li>CSRF</li>
+            <li>Login</li>
+            <li>Signature verification</li>
+            <li>Caching headers</li>
+          </ul>
+        </li>
+        <pre class="prettyprint" data-lang="Jersey + Java">
+@ResourceFilters({ AuthenticatedUserAdminFilter.class, 
+   CsrfVerificationFilter.class, NoCacheResponseFilter.class })
+@Path(AccountResource.ACCOUNTS_BASE_PATH)
+public class BaseResource {
+        </pre>
+      </ul>
+    </article>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>Testing your REST security</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>A REST API is stable - a website is not</li>
+        <li>Integration tests - booting and actually running HTTP requests</li>
+        <li>Can automate testing of:
+          <ul>
+            <li>CSRF protection</li>
+            <li>Signature tampering</li>
+            <li>Log out</li>
+            <li>XXE attacks</li>
+            <li>Data tampering</li>
+          </ul>
+        </li>
+      </ul>
+    </article>
+  </slide>
+
+  <slide class="thank-you-slide segue nobackground dark">
+    <aside class="gdbar right"><img src="images/bekk-logo.png"></aside>
+    <article class="flexbox vleft auto-fadein">
+      <h2>&lt;Thank You!&gt;</h2>
+
+    </article>
+    <p class="auto-fadein" data-config-contact>
+      <!-- populated from slide_config.json -->
+    </p>
+  </slide>
+
+  <slide>
+    <hgroup>
+      <h2>More?</h2>
+    </hgroup>
+    <article>
+      <ul>
+        <li>Join <a href="https://www.owasp.org/index.php/Norway">OWASP Norway</a> to learn/discuss web and application security<br><br>  </li>
+
+        <li>
+          <b>Hypermediadrevet API i praksis</b><br>
+          Frode Nerbråten og Espen H. Halvorsen<br>
+          Sal 3, 14:20 - 15:20, Torsdag
+
+        </li>
+      </ul>
+      <img src="images/rest-salg.jpg" style="height: 300px; position: absolute; bottom: 50px; right: 20px">
+    </article>
+  </slide>
+
+
+
+
+
+
+  <slide class="backdrop"></slide>
+</slide>
+</body>
+</html>
